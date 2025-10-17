@@ -11,6 +11,7 @@ You will be working with the following dataset: [Video Game Sales](https://www.k
 🔍 **Challenge: Load the Data into DuckDB**
 Using DBeaver and your DuckDB connection, how would you load the vgsales.csv file into a table so you can begin querying it?
 
+🚀 *Steps to create empty db/schema then import data*
 - database - New database Connection - Create
 - go to schema, right click & select Import Data
 - check Table mapping to ensure correct type mapping
