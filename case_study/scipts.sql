@@ -62,7 +62,7 @@ GROUP BY Year, Platform
 ORDER BY Year, total_global_sales DESC;
 
 
-
+----------------------------
   SELECT
     Genre,
     Platform,

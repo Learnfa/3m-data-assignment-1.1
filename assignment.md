@@ -144,13 +144,15 @@ Using the data provided in lesson 1.5 ( https://github.com/su-ntu-ctp/5m-data-1.
 Answer:
 
 ```sql
+-- CTE to return avg resale value for each car use
 WITH avg_value AS (
 	SELECT car_use, ROUND(AVG(resale_value)) as avg_value_by_use FROM main.car GROUP BY car_use
 )
--- contruct the table
-SELECT c.id, c.resale_value, c.car_use, a.avg_value_by_use 
+-- construct the table
+SELECT c.id, c.resale_value, c.car_use, a.avg_value_by_use, (a.avg_value_by_use - c.resale_value) AS spread
 FROM main.car c INNER JOIN avg_value a ON c.car_use=a.car_use 
-WHERE c.resale_value < a.avg_value_by_use;
+WHERE c.resale_value < a.avg_value_by_use
+ORDER BY spread DESC;
 
 ```
 
