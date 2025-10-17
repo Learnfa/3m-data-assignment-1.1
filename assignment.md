@@ -18,6 +18,45 @@ Answer:
 
 ```dbml
 
+// Social Media db
+
+Table users {
+  id          int        [pk, increment]
+  username    varchar
+  email       varchar    [not null, unique]
+  created_at  timestamp  [not null, default: `now()`]
+}
+
+Table follows {
+  following_user_id  int         [not null]
+  followed_user_id   int         [not null]
+  created_at         timestamp   [not null, default: `now()`]
+
+  Note: 'Self-referential many-to-many: many users follow many other users.'
+  Indexes {
+    (following_user_id, followed_user_id) [pk] // prevent dup following relationships
+  }
+}
+
+Table posts {
+  id          int        [pk, increment]
+  title       varchar    [not null]
+  body        text
+  user_id     int        [not null]
+  status      varchar    [not null, note: 'to use enum', default: `draft`]
+  created_at  timestamp  [not null, default: `now()`]
+}
+
+// Relationships
+// A user has many posts
+Ref: users.id < posts.user_id [delete: cascade, update: cascade]
+
+// A user (following_user_id) follows many other users (followed_user_id)
+Ref: users.id < follows.following_user_id [delete: cascade, update: cascade]
+
+// A user (followed_user_id) follows by many users (following_user_id)
+Ref: users.id < follows.followed_user_id  [delete: cascade, update: cascade]
+
 ```
 ### Question 2
 
@@ -26,7 +65,8 @@ Using the data provided in lession 1.3 ( https://github.com/su-ntu-ctp/5m-data-1
 Answer:
 
 ```sql
-
+DESC lesson.teachers
+ALTER TABLE lesson.teachers ADD COLUMN subject VARCHAR;
 ```
 
 ### Question 3
@@ -36,6 +76,10 @@ Using the data provided in lession 1.3 ( https://github.com/su-ntu-ctp/5m-data-1
 Answer:
 
 ```sql
+-- check first
+SELECT * from teachers where name = 'John Doe';
+-- do
+UPDATE teachers SET email = 'john.doe@school.com' where name = 'John Doe';
 
 ```
 ### Question 4
@@ -49,6 +93,17 @@ Using the data provided in lesson 1.4 ( https://github.com/su-ntu-ctp/5m-data-1.
 
 ```sql
 
+SELECT
+	CASE
+		WHEN rf.resale_price < 400000 THEN 'Budget'
+		WHEN rf.resale_price BETWEEN 400000 AND 700000 THEN 'Mid-Range'
+		WHEN rf.resale_price > 700000 THEN 'Premium'
+	END AS price_cat,
+	COUNT (*) as total_units
+FROM main.resale_flat_prices_2017 rf
+GROUP BY price_cat
+ORDER BY total_units DESC;
+
 ```
 
 ### Question 5
@@ -57,6 +112,13 @@ Using the data provided in lesson 1.4 ( https://github.com/su-ntu-ctp/5m-data-1.
 
 ```sql
 
+SELECT 
+	town, 
+	MAX(resale_price) AS max_resale_price, 
+	MIN(resale_price) AS min_resale_price
+FROM main.resale_flat_prices_2017 
+WHERE transaction_date BETWEEN '2017-01-01' AND '2017-03-01' 
+GROUP BY town ORDER BY max_resale_price DESC;
 ```
 ### Question 6
 
@@ -65,6 +127,13 @@ Using the data provided in lesson 1.5 ( https://github.com/su-ntu-ctp/5m-data-1.
 Answer:
 
 ```sql
+SELECT 
+	car_id, 
+	id, 
+	claim_date, 
+	travel_time, 
+	SUM(travel_time) OVER (PARTITION BY car_id ORDER BY id ASC) AS running_total 
+FROM claim ORDER BY car_id, id;
 
 ```
 
@@ -75,6 +144,13 @@ Using the data provided in lesson 1.5 ( https://github.com/su-ntu-ctp/5m-data-1.
 Answer:
 
 ```sql
+WITH avg_value AS (
+	SELECT car_use, ROUND(AVG(resale_value)) as avg_value_by_use FROM main.car GROUP BY car_use
+)
+-- contruct the table
+SELECT c.id, c.resale_value, c.car_use, a.avg_value_by_use 
+FROM main.car c INNER JOIN avg_value a ON c.car_use=a.car_use 
+WHERE c.resale_value < a.avg_value_by_use;
 
 ```
 

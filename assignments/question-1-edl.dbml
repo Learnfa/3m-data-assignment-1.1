@@ -1,0 +1,47 @@
+/* Construct an ERD in DBML for a social media company whose database 
+   includes information about users, their followers, and the posts that they make. 
+   Users can follow multiple users and create multiple posts.
+
+Each entity has the following attributes:
+
+- User: id, username, email, created_at
+- Post: id, title, body, user_id, status, created_at
+- Follows: following_user_id, followed_user_id, created_at
+*/
+
+// Tables
+
+Table users {
+  id          int        [pk, increment]
+  username    varchar
+  email       varchar    [not null, unique]
+  created_at  timestamp  [not null, default: `now()`]
+}
+Table follows {
+  following_user_id  int         [not null]
+  followed_user_id   int         [not null]
+  created_at         timestamp   [not null, default: `now()`]
+
+  Note: 'Self-referential many-to-many: which users follow which other users.'
+  Indexes {
+    (following_user_id, followed_user_id) [pk] // prevent duplicates
+  }
+}
+Table posts {
+  id          int        [pk, increment]
+  title       varchar    [not null]
+  body        text
+  user_id     int        [not null]
+  status      varchar    [not null, note: 'to use enum', default: `draft`]
+  created_at  timestamp  [not null, default: `now()`]
+}
+
+// Relationships
+// A user has many posts
+Ref: users.id < posts.user_id [delete: cascade, update: cascade]
+
+// A user (following_user_id) follows many other users (followed_user_id)
+Ref: users.id < follows.following_user_id [delete: cascade, update: cascade]
+
+// A user (followed_user_id) follows by many users (following_user_id)
+Ref: users.id < follows.followed_user_id  [delete: cascade, update: cascade]

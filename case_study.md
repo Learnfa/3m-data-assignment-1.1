@@ -11,6 +11,11 @@ You will be working with the following dataset: [Video Game Sales](https://www.k
 🔍 **Challenge: Load the Data into DuckDB**
 Using DBeaver and your DuckDB connection, how would you load the vgsales.csv file into a table so you can begin querying it?
 
+- database - New database Connection - Create
+- go to schema, right click & select Import Data
+- in Import Setting, set NULL value Mark with 'N/A'
+![alt text](image.png)
+
 ## Business Question
 How can game developers and publishers optimize their strategy to maximize global sales by understanding the performance of different game genres, platforms, and publishers?
 
